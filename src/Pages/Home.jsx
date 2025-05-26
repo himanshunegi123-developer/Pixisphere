@@ -1,25 +1,45 @@
-// src/Pages/Home.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import Card from '../components/PhotographerCard';
 
 function Home({ searchQuery, photographers }) {
-  // Ensure searchQuery is a string
+  const [visibleCount, setVisibleCount] = useState(3); // Show 3 initially
+
   const normalizedSearch = (searchQuery || '').toLowerCase();
 
-  // Filter photographers by search query (case-insensitive) with safety checks
   const filteredPhotographers = photographers.filter(
     (photographer) =>
       photographer?.name?.toLowerCase().includes(normalizedSearch)
   );
 
+  // Slice the array to only show `visibleCount` items
+  const visiblePhotographers = filteredPhotographers.slice(0, visibleCount);
+
+  const handleLoadMore = () => {
+    setVisibleCount((prevCount) => prevCount + 3);
+  };
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-      {filteredPhotographers.length > 0 ? (
-        filteredPhotographers.map((photographer) => (
-          <Card key={photographer.id} photographer={photographer} />
-        ))
-      ) : (
-        <p className="text-center text-gray-500">No photographers found.</p>
+    <div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {visiblePhotographers.length > 0 ? (
+          visiblePhotographers.map((photographer) => (
+            <Card key={photographer.id} photographer={photographer} />
+          ))
+        ) : (
+          <p className="text-center text-gray-500">No photographers found.</p>
+        )}
+      </div>
+
+      {/* Show Load More button only if there are more items to load */}
+      {visibleCount < filteredPhotographers.length && (
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={handleLoadMore}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Load More
+          </button>
+        </div>
       )}
     </div>
   );
